@@ -23,9 +23,9 @@ The project uses [clasp](https://github.com/google/clasp) and of course git. The
 
     .
     ├── assets                  # Static images, data…
-    ├── dist                    # Compiled files
+    ├── dist                    # Source files
     ├── docs                    # Documentation files
-    ├── libs                    # Sources & libraries
+    ├── libs                    # Libraries
     ├── tests                   # Automated tests
     │   ├── benchmarks          # Load & stress tests
     │   ├── system              # End-to-end tests
@@ -33,5 +33,3 @@ The project uses [clasp](https://github.com/google/clasp) and of course git. The
     ├── tools                   # Tools | URLs for tools
     ├── LICENSE.md              # License & copyright
     └── README.md               # Hard link to docs
-
-This is to check if I can add changes.

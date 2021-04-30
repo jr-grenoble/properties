@@ -1,6 +1,66 @@
 {
-  "timeZone": "America/New_York",
+  "timeZone": "Europe/Paris",
   "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Docs",
+        "serviceId": "docs",
+        "version": "v1"
+      },
+      {
+        "userSymbol": "Drive",
+        "serviceId": "drive",
+        "version": "v2"
+      },
+      {
+        "userSymbol": "Gmail",
+        "serviceId": "gmail",
+        "version": "v1"
+      },
+      {
+        "userSymbol": "Sheets",
+        "serviceId": "sheets",
+        "version": "v4"
+      },
+      {
+        "userSymbol": "Slides",
+        "version": "v1",
+        "serviceId": "slides"
+      }
+    ]
+  },
+  "addOns": {
+    "common": {
+      "name": "Factshaven",
+      "logoUrl": "https://drive.google.com/uc?id=0BwuAeksRpmryTzJZODdfcmFmSjg",
+      "layoutProperties": {
+        "primaryColor": "#a30015"
+      },
+      "homepageTrigger": {
+        "runFunction": "onｰeditorｰopened"
+      },
+      "universalActions": [
+        {
+          "label": "☰ Menu",
+          "runFunction": "popToRoot"
+        }
+      ]
+    },
+    "docs": {},
+    "slides": {},
+    "sheets": {},
+    "drive": {
+      "homepageTrigger": {
+        "runFunction": "onｰdriveｰopened"
+      },
+      "onItemsSelectedTrigger": {
+        "runFunction": "onｰfilesｰselected"
+      }
+    }
+  },
+  "webapp": {
+    "executeAs": "USER_ACCESSING",
+    "access": "DOMAIN"
   },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8"
