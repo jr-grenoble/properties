@@ -42,7 +42,7 @@
       "universalActions": [
         {
           "label": "☰ Menu",
-          "runFunction": "popToRoot"
+          "runFunction": "popｰtoｰroot"
         }
       ]
     },
