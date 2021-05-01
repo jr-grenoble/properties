@@ -1,12 +1,12 @@
 /**
- ** Author: Jean-René Bouvier.
- ** Copyright (c) Jean-René Bouvier, 2014, 2015
- ** The author hereby grants Facts Haven SAS and its affiliates the right to use and perform any derivative works
- **
- ** This is the main entry point module.
- ** By convention, public functions are rooted in the module.
- ** Module private functions (i.e. not callable by the client) are located in the object named after the module.
- **/
+ * Author: Jean-René Bouvier.
+ * Copyright (c) Jean-René Bouvier, from 2021 on
+ * The author hereby grants Facts Haven SAS and its affiliates the right to use and perform any derivative works
+ *
+ * This is the main entry point module.
+ * By convention, public functions are rooted in the module.
+ * Module private functions (i.e. not callable by the client) are located in the object named after the module.
+ */
 
 type Card = GoogleAppsScript.Card_Service.Card;
 type ActionResponse = GoogleAppsScript.Card_Service.ActionResponse;
@@ -44,5 +44,6 @@ function popｰtoｰroot(e: Event): ActionResponse {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function onｰfilesｰselected(e: Event): Card {
+  // Dummy statement
   return CardService.newCardBuilder().build();
 }
