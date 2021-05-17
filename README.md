@@ -27,9 +27,8 @@ The project uses [clasp](https://github.com/google/clasp) and of course git. The
     ├── docs                    # Documentation files
     ├── libs                    # Libraries
     ├── tests                   # Automated tests
-    │   ├── benchmarks          # Load & stress tests
-    │   ├── system              # End-to-end tests
-    │   └── unit                # Unit tests
     ├── tools                   # Tools | URLs for tools
     ├── LICENSE.md              # License & copyright
     └── README.md               # Hard link to docs
+
+The project uses [typedoc](https://typedoc.org/) for documentation.

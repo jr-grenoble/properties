@@ -6,6 +6,7 @@
  * This is the main entry point module.
  * By convention, public functions are rooted in the module.
  * Module private functions (i.e. not callable by the client) are located in the object named after the module.
+ * @module
  */
 
 type Card = GoogleAppsScript.Card_Service.Card;
@@ -36,14 +37,14 @@ function onｰeditorｰopened(e: Event): Array<Card> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function popｰtoｰroot(e: Event): ActionResponse {
+function popｰtoｰroot(_unused_e: Event): ActionResponse {
   return CardService.newActionResponseBuilder()
     .setNavigation(CardService.newNavigation().popToRoot())
     .build();
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function onｰfilesｰselected(e: Event): Card {
+function onｰfilesｰselected(_unused_e: Event): Card {
   // Dummy statement
   return CardService.newCardBuilder().build();
 }
