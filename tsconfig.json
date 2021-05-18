@@ -77,9 +77,13 @@
   // run typedoc as: typedoc --watch --tsconfig tsconfig.json dist libs --theme minimal -name Properties
   "typedocOptions": {
     "entryPoints": ["dist/main.ts", "libs/cards.ts", "libs/tags.ts"],
-    "out": "docs",
+    "highlightTheme": "github-light",
+    "markedOptions": ["breaks"],
     "name": "Properties",
-    "watch": true,
-    "theme": "minimal"
+    "out": "docs",
+    "pretty": true,
+    "readme": "docs/README.md",
+    "theme": "minimal",
+    "watch": true
   }
 }
