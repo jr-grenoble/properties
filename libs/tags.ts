@@ -1,10 +1,9 @@
 /**
- * Tags.ts
+ * @module Tags - a collection of chainable tags for template string literals
  *
- * Author: Jean-René Bouvier.
+ * @author Jean-René Bouvier
  *
- * Copyright (c) Jean-René Bouvier, from 2021 on.
- *
+ * @copyright (c) Jean-René Bouvier, from 2021 on.
  * The author hereby grants Facts Haven SAS and its affiliates the right to use and perform any derivative works
  *
  * This is a library module that provides various tag functions to modify template literals.
@@ -13,12 +12,33 @@
  *
  * - Refer also to the much more complete [common-tags](https://github.com/zspecza/common-tags) package.
  *
+ * @overview
+ * Tags allow for prefixing template literals, e.g. as in
+ * ```typescript
+ * identity`Some ${expression} followed by text`⁠
+ * ```
  *
- * Tag functions take one mandatory parameter, a `templateｰstrings` array of string literals, and optional printable values.
+ * Tag function implementations take one mandatory parameter, a `templateｰstrings` array of string literals, and optional printable values.
  * By default (cf. the `identity` tag), the template string is rendederd by interleaving the printable values between the template
  *  string literals. Hence, a proper call to a tag function must pass one more string literal than there are values.
  *
- * @module Tags is a collection of chainable tags for template string literals
+ * Chainable tag functions allow for composing tags to perform more complex tasks, as in
+ * ```typescript
+ * indent(4)(paragraph)`Some ${expression}`⁠
+ * ```
+ * They can also work on a regular string parameter, when using the regular function call, as in
+ * ```typescript
+ * indent(4)(paragraph)("Some string")
+ * ```
+ * See the {@link chainableｰtagｰfunction} type for further explanations.
+ *
+ * | Types                         | Description                                                                                                   |
+ * | :---------------------------- | :------------------------------------------------------------------------------------------------------------ |
+ * | {@link chainableｰtagｰfunction}| A tag function that also accepts another tag function or a string as a parameter, for chaining or direct call |
+ * | {@link tagｰfunction}          | A function that can be applied to a template string, i.e. that can prefix such a string                       |
+ * | {@link templateｰstrings}      | Array of readonly strings, augmented with a raw property to iterate over raw equivalent of these strings      |
+ * | {@link printableｰvalue}       | Any expression that produces a printable result, i.e. that can be called with `.toString()`                   |
+ *
  */
 
 /**
@@ -28,11 +48,15 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Tags {
+  // Type definitions /////////////////////////////////////////////////////////
+  // Basic types and interfaces for tag functions.                           //
+  /////////////////////////////////////////////////////////////////////////////
+
   /**
    * The `templateｰstrings` type is basically an array of readonly strings augmented with a raw property that stores
    * the same string literals unprocessed for escape sequence.
    */
-  interface templateｰstrings extends ReadonlyArray<string> {
+  export interface templateｰstrings extends ReadonlyArray<string> {
     raw: readonly string[]; // actually this is already in the TemplateStringsArray, we put it here for documentation
   } // alias for template string arrays
   /**
@@ -44,16 +68,36 @@ namespace Tags {
   /**
    * With the above definitions, a basic tag function conforms to this type.
    */
-  interface tagｰfunction {
+  export interface tagｰfunction {
     (strings: templateｰstrings, ...values: printableｰvalue[]): string;
   }
   /**
    * We extend tag functions so that they can be chained and also so that you can call them on regular strings.
+   * When you compose chaianable tags, the innermost (deepest) tag is applied first, followed by tags of lesser depth,
+   * until the outermost tag is called. For instance, in
+   *
+   * ```typescript
+   * indent(-2)(paragraph(outdent))`
+   *      This is some text.
+   *      This line has the same indentation as the previous one.
+   *          This line has deeper indentation.
+   *          This one too.
+   *
+   *
+   *      This line has the initial indentation level.
+   *      And this is the last line.
+   *      `;
+   * ```
    */
   export interface chainableｰtagｰfunction extends tagｰfunction {
     (tag: tagｰfunction): chainableｰtagｰfunction;
     (stringｰliteral: string): string;
   }
+
+  // Utility functions ////////////////////////////////////////////////////////
+  // Common code across tag functions; some of this is generic though.       //
+  /////////////////////////////////////////////////////////////////////////////
+
   /**
    * Split text into lines, removing trailing white space and double blank lines
    *
@@ -107,6 +151,16 @@ namespace Tags {
         Infinity // start big to compute the minimum
       );
 
+  // rename a tag function
+  /**
+   * Rename a tag function
+   * @param func - the function to rename
+   * @param name - the new name
+   * @returns the modified tag function
+   */
+  const rename = <funcｰtype>(func: funcｰtype, name: string): funcｰtype =>
+    Object.defineProperty(func, "name", { value: name });
+
   /**
    * Turn a `(string, ...value) => string` tag function into a function that can accept a
    * chainable tag function in lieu of its string parameter and return a chainable tag function.
@@ -134,14 +188,9 @@ namespace Tags {
    * @param tag - the tag function to be made chainable and callable on strings
    * @returns a chainable and string callable tag function
    */
-  export const makeｰchainable = (tag: tagｰfunction): chainableｰtagｰfunction => {
-    // rename a tag function
-    const rename = (
-      func: chainableｰtagｰfunction | tagｰfunction,
-      name: string
-    ) => Object.defineProperty(func, "name", { value: name });
-    // Record the name of the chainable tag
-    const name = tag.name ?? "anoymousｰtag";
+  const makeｰchainable = (tag: tagｰfunction): chainableｰtagｰfunction => {
+    // Record the name of the chainable tag, refusing nullish names
+    const tagｰname = tag.name || "anoymousｰtag";
     // The return function has 3 overload signatures:
     function chainable(
       strings: templateｰstrings,
@@ -163,10 +212,8 @@ namespace Tags {
           ): string {
             return tag`${(stringsｰorｰtag as tagｰfunction)(s, ...v)}`;
           }
-          rename(composite, `${name}(${stringsｰorｰtag.name})`);
+          rename(composite, `${tagｰname}(${stringsｰorｰtag.name})`);
           return composite;
-          // return (s: templateｰstrings, ...v: printableｰvalue[]) : string =>
-          //   tag`${(stringsｰorｰtag as tagｰfunction)(s, ...v)}`;
         }
         case "string":
           return tag`${stringsｰorｰtag}`;
@@ -174,9 +221,13 @@ namespace Tags {
           return tag(stringsｰorｰtag as templateｰstrings, ...values);
       }
     }
-    rename(chainable, name);
+    rename(chainable, tagｰname);
     return chainable;
   };
+
+  // Tag functions ////////////////////////////////////////////////////////////
+  // We define chainable tag functions below.                                //
+  /////////////////////////////////////////////////////////////////////////////
 
   /**
    * The identity tag is not very useful, except to zip strings and values together.
@@ -185,7 +236,7 @@ namespace Tags {
    * @returns a string that interleaves values into the strings array
    */
   export const identity: chainableｰtagｰfunction = makeｰchainable(
-    function identity(
+    rename(function (
       strings: templateｰstrings,
       ...values: printableｰvalue[]
     ): string {
@@ -196,7 +247,8 @@ namespace Tags {
         (text: string, s: string, i: number) => `${text}${s}${values[i]}`,
         ""
       );
-    }
+    },
+    "identity")
   );
 
   /**
@@ -227,14 +279,14 @@ namespace Tags {
    * // And this is line 2
    * ```
    */
-  export const raw: tagｰfunction = String.raw;
+  export const raw: tagｰfunction = rename(String.raw, "raw");
 
   /**
    * The `paragraph` tag removes duplicate blank lines and returns a set of paragraphs separated by single blank lines.
    * @returns a string that interleaves values into the strings array and that removes extraneous blank lines.
    */
   export const paragraph: chainableｰtagｰfunction = makeｰchainable(
-    function paragraph(
+    rename(function (
       strings: templateｰstrings,
       ...values: printableｰvalue[]
     ): string {
@@ -242,7 +294,8 @@ namespace Tags {
       return textｰlines(identity(strings, ...values))
         .filter((line) => line.trim())
         .join("\n\n");
-    }
+    },
+    "paragraph")
   );
 
   /**
@@ -250,32 +303,38 @@ namespace Tags {
    * @see {@link outdent} to remove first level indentation, e.g. with `fold(outdent)`
    * @see {@link flush} to remove all indentation, e.g. with `fold(flush)`.
    */
-  export const fold: chainableｰtagｰfunction = makeｰchainable(function fold(
-    strings: templateｰstrings,
-    ...values: printableｰvalue[]
-  ): string {
-    return textｰlines(identity(strings, ...values)).join("");
-  });
+  export const fold: chainableｰtagｰfunction = makeｰchainable(
+    rename(function (
+      strings: templateｰstrings,
+      ...values: printableｰvalue[]
+    ): string {
+      return textｰlines(identity(strings, ...values)).join("");
+    },
+    "fold")
+  );
 
   /**
    * The `flush`tag removes all leading spaces (flushes text left).
    * @see {@link outdent} to remove only the first level of indentation.
    */
-  export const flush: chainableｰtagｰfunction = makeｰchainable(function flush(
-    strings: templateｰstrings,
-    ...values: printableｰvalue[]
-  ): string {
-    return textｰlines(identity(strings, ...values))
-      .map((line) => line.trim())
-      .join("\n");
-  });
+  export const flush: chainableｰtagｰfunction = makeｰchainable(
+    rename(function (
+      strings: templateｰstrings,
+      ...values: printableｰvalue[]
+    ): string {
+      return textｰlines(identity(strings, ...values))
+        .map((line) => line.trim())
+        .join("\n");
+    },
+    "flush")
+  );
 
   /**
    * The `outdent`tag removes first level indentation.
    * @see {@link flush} to remove all indentation.
    */
   export const outdent: chainableｰtagｰfunction = makeｰchainable(
-    function outdent(
+    rename(function (
       strings: templateｰstrings,
       ...values: printableｰvalue[]
     ): string {
@@ -284,32 +343,157 @@ namespace Tags {
       const indentation = minｰindentation(lines);
       // remove that minimum indentation from all lines
       return lines.map((line) => line.slice(indentation)).join("\n");
-    }
+    },
+    "outdent")
   );
+
   /**
-   *
-   * @param args The `indent` tag adds indentation to each line.
-   * @see {@link outdent} and {@link flush} for relatede functions.
+   * The `indent` tag adds indentation to each line.
+   * @see {@link outdent} and {@link flush} for related functions.
    */
   export const indent = (n: number): chainableｰtagｰfunction =>
-    makeｰchainable(function indent(
-      strings: templateｰstrings,
-      ...values: printableｰvalue[]
-    ): string {
-      const lines = textｰlines(identity(strings, ...values));
-      if (n >= 0) {
-        // just add n spaces at head of lines
-        const spaces = " ".repeat(n);
-        return lines.map((line) => spaces.concat(line)).join("\n");
-      }
-      // if negative n, remove -n spaces capped by min indentation
-      const indentation = Math.min(-n, minｰindentation(lines));
-      return lines.map((line) => line.slice(indentation)).join("\n");
-    });
+    makeｰchainable(
+      rename(
+        function (
+          strings: templateｰstrings,
+          ...values: printableｰvalue[]
+        ): string {
+          const lines = textｰlines(identity(strings, ...values));
+          if (n >= 0) {
+            // just add n spaces at head of lines
+            const spaces = " ".repeat(n);
+            return lines.map((line) => spaces.concat(line)).join("\n");
+          }
+          // if negative n, remove -n spaces capped by min indentation
+          const indentation = Math.min(-n, minｰindentation(lines));
+          return lines.map((line) => line.slice(indentation)).join("\n");
+        },
+        // rename indent function to include its parameter
+        `indent(${n})`
+      )
+    );
   /**
    * @todo THE MOST COMPLEX tag is to wrap lines to a max line length
+   *
    */
-  export const wrap: chainableｰtagｰfunction = identity;
+  /** @todo, use this function whenever we need indentation; is this a candidate for a tag? */
+  const indentation = (line: string) => /^\s*/.exec(line)?.[0]?.length ?? 0;
+  type lineｰwithｰindent = {
+    indent: number;
+    line: string;
+  };
+  /** @todo move where appropriate; is this a candidate for a tag? */
+  const split =
+    (n: number) =>
+    (lineｰwithｰindent: lineｰwithｰindent): string[] => {
+      if (lineｰwithｰindent.line.length <= n) return [lineｰwithｰindent.line];
+      let i = lineｰwithｰindent.line.lastIndexOf(" ", n);
+      if (i < 0 || i < lineｰwithｰindent.indent)
+        i = lineｰwithｰindent.line.indexOf(" ", n);
+      if (i < 0) return [lineｰwithｰindent.line]; // can't split line
+      return [
+        lineｰwithｰindent.line.substr(0, i),
+        ...split(n)({
+          indent: lineｰwithｰindent.indent,
+          line:
+            " ".repeat(lineｰwithｰindent.indent) +
+            lineｰwithｰindent.line.substr(i + 1),
+        }),
+      ];
+    };
+  export const wrap = (n: number): chainableｰtagｰfunction =>
+    makeｰchainable(
+      rename(function (
+        strings: templateｰstrings,
+        ...values: printableｰvalue[]
+      ): string {
+        let [currentｰindentation, previousｰindentation] = [-1, -1];
+        return (
+          textｰlines(identity(strings, ...values))
+            /** @todo create tag function for this */
+            // fold multiple whitespaces into one
+            .map((line) => line.replace(/\b\s+/g, " "))
+            // remove trailing whitespace
+            .map((line) => line.replace(/\s$/, ""))
+            // join lines that have identical indentation, setting blank lines to empty lines
+            .reduce(
+              (lines: lineｰwithｰindent[], line: string): lineｰwithｰindent[] => {
+                // update indentation levels
+                [previousｰindentation, currentｰindentation] = [
+                  currentｰindentation,
+                  indentation(line),
+                ];
+                // preserve blank lines
+                if (line.length <= currentｰindentation) {
+                  // reset indentation level so that nothing gets appended to blank line
+                  currentｰindentation = -1;
+                  return lines.concat({ indent: 0, line: "" });
+                }
+                // handle indentation changes by starting a new line
+                if (previousｰindentation !== currentｰindentation)
+                  return lines.concat({
+                    indent: currentｰindentation,
+                    line,
+                  });
+                // handle identical indentation by joining with previous line;
+                // because initial indentation levels are impossible, we are guaranteed to have a previous line
+                (lines[lines.length - 1] as lineｰwithｰindent).line +=
+                  line.replace(/^\s*/, " ");
+                return lines;
+              },
+              []
+            )
+            // split lines longer than n characters
+            .map(split(n))
+            .flat()
+            .join("\n")
+        );
+      },
+      `wrap(${n})`)
+    );
+
+  /** @todo consider moving padder to some other module */
+  const padder = (padｰwidth: number, padｰwith = " ") => {
+    // padding with a string (as opposed to a number)
+    if (isNaN(parseInt(padｰwith))) {
+      return (n: number) => n.toString().padStart(padｰwidth, padｰwith);
+    }
+    // padding with a digit
+    return (n: number) =>
+      n > 0
+        ? n.toString().padStart(padｰwidth, padｰwith)
+        : `-${n.toString().padStart(padｰwidth - 1, padｰwith)}`;
+  };
+  /**
+   * The `number` tag adds numbering to each line.
+   * @param numberｰfrom - where to start numbering from
+   * @param suffix - numbering suffix
+   * @returns numbered lines
+   * @see {@link outdent} and {@link flush} for related functions.
+   */
+  export const number = ({
+    numberｰfrom = 1,
+    suffix = ". ",
+    padｰwith = " ",
+    padｰwidth = -1 /** @todo TODO RESTART HERE, -1 os not ok */,
+  } = {}): chainableｰtagｰfunction =>
+    makeｰchainable(
+      rename(
+        function (
+          strings: templateｰstrings,
+          ...values: printableｰvalue[]
+        ): string {
+          const lines = textｰlines(identity(strings, ...values));
+          padｰwidth ??= Math.round(Math.log10(lines.length + numberｰfrom - 1));
+          const pad = padder(padｰwidth, padｰwith);
+          return lines
+            .map((line, index) => `${pad(numberｰfrom + index)}${suffix}${line}`)
+            .join("\n");
+        },
+        // rename indent function to include its parameters
+        `number(${numberｰfrom}${suffix ? ', "${suffix}"' : ""})`
+      )
+    );
 }
 
 const log = (...args: Tags.printableｰvalue[]) =>
@@ -320,8 +504,11 @@ const log = (...args: Tags.printableｰvalue[]) =>
       ""
     )
   );
-const test = (tag: Tags.chainableｰtagｰfunction, text: string): void => {
-  log("\n———Test\n", tag.name, "=>", tag`${text}`, "<=");
+const test = (
+  tag: Tags.chainableｰtagｰfunction | Tags.tagｰfunction,
+  text: string
+): void => {
+  log("\n———Test---\n", tag.name, "\n=>\n", tag`${text}`, "\n<=\n");
 };
 const text = `
     Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -354,10 +541,10 @@ test(Tags.flush, text);
 test(Tags.fold, text);
 test(Tags.identity(Tags.fold(Tags.flush)), text);
 test(Tags.indent(10)(Tags.outdent), text);
-test(Tags.indent(-3), text);
+test(Tags.identity(Tags.indent(-3)), text);
 test(
   // Tags.identity,
-  Tags.makeｰchainable(Tags.raw),
+  Tags.raw,
   Tags.raw`
         This is a test\n\n\t\nWe are computing π:     
         (and by the    way, \t    this ain't easy)
@@ -368,3 +555,23 @@ test(
 ${Math.PI}
 `
 );
+
+const indentｰtext = `
+        This line as minimally indented.
+        The next one is also minimal.
+                This is some fairly long text: Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                This is the deepest.
+                This line has the same indentation as the previous one.
+                It is indented by 8 spaces compared to the minimum level.
+        We are back at minimal level.
+        And we stay there.
+            This line is deeper indented.
+            It has a depth of 4 spaces.
+            This one too.
+            And that one too.
+    
+    
+        This line has the initial indentation level.
+        And this is the last line.
+        `;
+test(Tags.number()(Tags.wrap(40)(Tags.outdent)), indentｰtext);
