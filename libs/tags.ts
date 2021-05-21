@@ -30,14 +30,14 @@
  * ```typescript
  * indent(4)(paragraph)("Some string")
  * ```
- * See the {@link chainableｰtagｰfunction} type for further explanations.
+ * See the {@linkcode chainableｰtagｰfunction} type for further explanations.
  *
- * | Types                         | Description                                                                                                   |
- * | :---------------------------- | :------------------------------------------------------------------------------------------------------------ |
- * | {@link chainableｰtagｰfunction}| A tag function that also accepts another tag function or a string as a parameter, for chaining or direct call |
- * | {@link tagｰfunction}          | A function that can be applied to a template string, i.e. that can prefix such a string                       |
- * | {@link templateｰstrings}      | Array of readonly strings, augmented with a raw property to iterate over raw equivalent of these strings      |
- * | {@link printableｰvalue}       | Any expression that produces a printable result, i.e. that can be called with `.toString()`                   |
+ * | Types                             | Description                                                                                                   |
+ * | :-------------------------------- | :------------------------------------------------------------------------------------------------------------ |
+ * | {@linkcode chainableｰtagｰfunction}| A tag function that also accepts another tag function or a string as a parameter, for chaining or direct call |
+ * | {@linkcode tagｰfunction}          | A function that can be applied to a template string, i.e. that can prefix such a string                       |
+ * | {@linkcode templateｰstrings}      | Array of readonly strings, augmented with a raw property to iterate over raw equivalent of these strings      |
+ * | {@linkcode printableｰvalue}       | Any expression that produces a printable result, i.e. that can be called with `.toString()`                   |
  *
  */
 
@@ -92,6 +92,21 @@ namespace Tags {
   export interface chainableｰtagｰfunction extends tagｰfunction {
     (tag: tagｰfunction): chainableｰtagｰfunction;
     (stringｰliteral: string): string;
+  }
+
+  /**
+   *
+   */
+
+  export interface numberingｰoptions {
+    numberｰfrom?: number;
+    prefix?: string;
+    suffix?: string;
+    padｰwidth?: number;
+    padｰwith?: string | number;
+    padｰzeroｰwith?: string | number;
+    numberingｰscheme?: keyof typeof numberingｰschemes;
+    signｰall?: boolean;
   }
 
   // Utility functions ////////////////////////////////////////////////////////
@@ -151,12 +166,11 @@ namespace Tags {
         Infinity // start big to compute the minimum
       );
 
-  // rename a tag function
   /**
-   * Rename a tag function
+   * Rename a function
    * @param func - the function to rename
    * @param name - the new name
-   * @returns the modified tag function
+   * @returns the modified function
    */
   const rename = <funcｰtype>(func: funcｰtype, name: string): funcｰtype =>
     Object.defineProperty(func, "name", { value: name });
@@ -452,31 +466,163 @@ namespace Tags {
       `wrap(${n})`)
     );
 
-  /** @todo consider moving padder to some other module */
-  const padder = (padｰwidth: number, padｰwith = " ") => {
-    // padding with a string (as opposed to a number)
-    if (isNaN(parseInt(padｰwith))) {
-      return (n: number) => n.toString().padStart(padｰwidth, padｰwith);
-    }
-    // padding with a digit
-    return (n: number) =>
-      n > 0
-        ? n.toString().padStart(padｰwidth, padｰwith)
-        : `-${n.toString().padStart(padｰwidth - 1, padｰwith)}`;
+  export const alphabetize = ({ uppercase = false } = {}): ((
+    n: number,
+    s?: string
+  ) => string) => {
+    // ancillary function to generate alphabetic numbering functions
+    const alphaｰbase = (uppercase ? "A" : "a").charCodeAt(0);
+    return function alpha(n: number, s = ""): string {
+      // tail recursive
+      return n < 1
+        ? s
+        : alpha(
+            Math.floor((n - 1) / 26),
+            String.fromCharCode(((n - 1) % 26) + alphaｰbase) + s
+          );
+    };
   };
+
+  export const romanize = ({ uppercase = true } = {}): ((
+    n: number,
+    s?: string
+  ) => string) => {
+    /**
+     * Note that the roman literals below are not Unicode roman digits, but latin letters, as per Unicode recommendation
+     * @todo, explain this further. See {@link [Wikipedia](https://en.wikipedia.org/wiki/Roman_numerals)}
+     */
+    type literal = readonly [string, number];
+    const literals: readonly literal[] = (
+      [
+        ["M", 1000],
+        ["CM", 900],
+        ["D", 500],
+        ["CD", 400],
+        ["C", 100],
+        ["XC", 90],
+        ["L", 50],
+        ["XL", 40],
+        ["X", 10],
+        ["IX", 9],
+        ["V", 5],
+        ["IV", 4],
+        ["I", 1],
+      ] as literal[]
+    ).map(([roman, arabic]: literal) => [
+      uppercase ? roman : roman?.toLowerCase(),
+      arabic,
+    ]);
+    return function roman(n: number, s = ""): string {
+      if (n < 0) return "-" + roman(-n, s);
+      for (const [key, val] of literals) {
+        if (n >= val) {
+          return roman(n - val, s + key);
+        }
+      }
+      return s;
+    };
+  };
+
+  export const arabize = (n: number): string => `${n}`;
+
+  export const numberingｰschemes = {
+    alpha: alphabetize({ uppercase: false }),
+    Alpha: alphabetize({ uppercase: true }),
+    roman: romanize({ uppercase: false }),
+    Roman: romanize({ uppercase: true }),
+    digit: arabize,
+  };
+
+  export const maxｰpaddingｰwidth = (
+    from: number,
+    length: number,
+    scheme: keyof typeof numberingｰschemes = "digit",
+    signed = false
+  ): number => {
+    const sign = from < 0 || signed ? 1 : 0;
+    const max = Math.max(Math.abs(from), Math.abs(length));
+    const base = {
+      alpha: Math.log(26),
+      digit: Math.log(10),
+      roman: [1, 2, 3, 8, 18, 28, 38, 88, 188, 288, 388, 888, 1888, 2888, 3888],
+    }[(scheme ?? "digit").toLocaleLowerCase()];
+    if (typeof base === "number") return sign + Math.ceil(Math.log(max) / base);
+    return sign + (base as number[]).findIndex((element) => element > max);
+  };
+
+  export class counter {
+    public value: number;
+    private readonly stringｰpadding: boolean;
+    private readonly stringize: (n: number) => string;
+    private padder: (n: number) => string = arabize;
+    constructor(
+      private readonly options: numberingｰoptions = {} // padｰwith: string | number = " ",
+    ) {
+      this.value = options.numberｰfrom ?? 0;
+      this.options.prefix ??= "";
+      this.options.suffix ??= "";
+      this.options.padｰwidth ??= 0;
+      this.options.padｰwith = `${options.padｰwith ?? " "}`;
+      this.options.padｰzeroｰwith = `${
+        options.padｰzeroｰwith ?? this.options.padｰwith
+      }`;
+      this.options.signｰall ??= false;
+      this.stringｰpadding = isNaN(parseInt(this.options.padｰwith));
+      this.stringize = numberingｰschemes[options.numberingｰscheme ?? "digit"];
+      // build padding function
+      this.padder = (n: number) => {
+        const sign = this.options.signｰall
+          ? ["-", "±", "+"][Math.sign(n) + 1]
+          : n < 0
+          ? "-"
+          : "";
+        const nｰasｰstring = this.stringize(Math.abs(n));
+        const padding = (
+          n ? this.options.padｰwith : this.options.padｰzeroｰwith
+        ) as string;
+
+        if (this.stringｰpadding) {
+          return (sign + nｰasｰstring).padStart(
+            this.options.padｰwidth as number,
+            padding
+          );
+        }
+        const width =
+          (this.options.padｰwidth as number) -
+          (n < 0 && !this.options.signｰall ? 1 : 0);
+        return sign + nｰasｰstring.padStart(width, padding);
+      };
+    }
+    get reset(): this {
+      this.value = this.options.numberｰfrom ?? 0;
+      return this; // for chaining
+    }
+    get next(): this {
+      this.value++;
+      return this; // for chaining
+    }
+    get raw(): string {
+      return this.stringize(this.value);
+    }
+    get pad(): string {
+      return `${this.options.prefix}${this.padder(this.value)}${
+        this.options.suffix
+      }`;
+    }
+  }
+
   /**
-   * The `number` tag adds numbering to each line.
+   * The `numbering` tag adds numbering to each line.
    * @param numberｰfrom - where to start numbering from
    * @param suffix - numbering suffix
+   * @param padｰwith - what to pad numbers to the left
+   * @param padｰwidth - width of padded numbering, defaults to number of digits
    * @returns numbered lines
    * @see {@link outdent} and {@link flush} for related functions.
    */
-  export const number = ({
-    numberｰfrom = 1,
-    suffix = ". ",
-    padｰwith = " ",
-    padｰwidth = -1 /** @todo TODO RESTART HERE, -1 os not ok */,
-  } = {}): chainableｰtagｰfunction =>
+  export const numbering = (
+    options: numberingｰoptions = {}
+  ): chainableｰtagｰfunction =>
     makeｰchainable(
       rename(
         function (
@@ -484,17 +630,28 @@ namespace Tags {
           ...values: printableｰvalue[]
         ): string {
           const lines = textｰlines(identity(strings, ...values));
-          padｰwidth ??= Math.round(Math.log10(lines.length + numberｰfrom - 1));
-          const pad = padder(padｰwidth, padｰwith);
-          return lines
-            .map((line, index) => `${pad(numberｰfrom + index)}${suffix}${line}`)
-            .join("\n");
+          options.numberｰfrom ??= 0;
+          options.suffix ??= ". ";
+          options.padｰwith ??= " ";
+
+          options.padｰwidth = maxｰpaddingｰwidth(
+            options.numberｰfrom,
+            lines.length,
+            options.numberingｰscheme,
+            options.signｰall
+          );
+
+          const index = new counter(options);
+
+          return lines.map((line) => `${index.next.pad}${line}`).join("\n");
         },
         // rename indent function to include its parameters
-        `number(${numberｰfrom}${suffix ? ', "${suffix}"' : ""})`
+        `number(${JSON.stringify(options)})`
       )
     );
 }
+
+export const numberｰlines = Tags.numbering();
 
 const log = (...args: Tags.printableｰvalue[]) =>
   console.log(
@@ -572,6 +729,15 @@ const indentｰtext = `
     
     
         This line has the initial indentation level.
-        And this is the last line.
+        And this is the last line before a newline.
         `;
-test(Tags.number()(Tags.wrap(40)(Tags.outdent)), indentｰtext);
+test(
+  Tags.numbering({
+    padｰwith: " ",
+    numberｰfrom: -29,
+    prefix: "«",
+    suffix: "» ",
+    numberingｰscheme: "roman",
+  })(Tags.wrap(40)(Tags.outdent)),
+  indentｰtext
+);
