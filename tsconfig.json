@@ -78,7 +78,6 @@
   "typedocOptions": {
     "entryPoints": ["dist/main.ts", "libs/cards.ts", "libs/tags.ts"],
     "highlightTheme": "github-light",
-    "markedOptions": ["breaks"],
     "name": "Properties",
     "out": "docs",
     "pretty": true,

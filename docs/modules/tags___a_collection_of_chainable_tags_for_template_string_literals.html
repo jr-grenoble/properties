@@ -2704,8 +2704,17 @@ img {
 </header>
 <nav class="tsd-navigation secondary">
 	<ul>
+		<li class=" tsd-kind-variable tsd-parent-kind-module">
+			<a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#indent_text" class="tsd-kind-icon">indentｰtext</a>
+		</li>
+		<li class=" tsd-kind-variable tsd-parent-kind-module">
+			<a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#text" class="tsd-kind-icon">text</a>
+		</li>
 		<li class=" tsd-kind-function tsd-parent-kind-module">
-			<a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#number_lines" class="tsd-kind-icon">numberｰlines</a>
+			<a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#log" class="tsd-kind-icon">log</a>
+		</li>
+		<li class=" tsd-kind-function tsd-parent-kind-module">
+			<a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#test" class="tsd-kind-icon">test</a>
 		</li>
 	</ul>
 </nav>
@@ -2741,7 +2750,7 @@ img {
 						<p>They can also work on a regular string parameter, when using the regular function call, as in</p>
 						<pre><code class="language-typescript"><span style="color: #6F42C1">indent</span><span style="color: #24292E">(</span><span style="color: #005CC5">4</span><span style="color: #24292E">)(paragraph)(</span><span style="color: #032F62">&quot;Some string&quot;</span><span style="color: #24292E">)</span>
 </code></pre>
-						<p>See the {@linkcode chainableｰtagｰfunction} type for further explanations.</p>
+						<p>See the <a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.chainable_tag_function.html"><code>chainableｰtagｰfunction</code></a> type for further explanations.</p>
 						<table>
 							<thead>
 								<tr>
@@ -2750,19 +2759,19 @@ img {
 								</tr>
 							</thead>
 							<tbody><tr>
-									<td align="left">{@linkcode chainableｰtagｰfunction}</td>
+									<td align="left"><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.chainable_tag_function.html"><code>chainableｰtagｰfunction</code></a></td>
 									<td align="left">A tag function that also accepts another tag function or a string as a parameter, for chaining or direct call</td>
 								</tr>
 								<tr>
-									<td align="left">{@linkcode tagｰfunction}</td>
+									<td align="left"><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.tag_function.html"><code>tagｰfunction</code></a></td>
 									<td align="left">A function that can be applied to a template string, i.e. that can prefix such a string</td>
 								</tr>
 								<tr>
-									<td align="left">{@linkcode templateｰstrings}</td>
+									<td align="left"><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.template_strings.html"><code>templateｰstrings</code></a></td>
 									<td align="left">Array of readonly strings, augmented with a raw property to iterate over raw equivalent of these strings</td>
 								</tr>
 								<tr>
-									<td align="left">{@linkcode printableｰvalue}</td>
+									<td align="left"><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.printable_value.html"><code>printableｰvalue</code></a></td>
 									<td align="left">Any expression that produces a printable result, i.e. that can be called with <code>.toString()</code></td>
 								</tr>
 						</tbody></table>
@@ -2775,69 +2784,99 @@ img {
 			<section class="tsd-panel tsd-index-panel">
 				<div class="tsd-index-content">
 					<section class="tsd-index-section ">
+						<h3>Namespaces</h3>
+						<ul class="tsd-index-list">
+							<li class="tsd-kind-namespace tsd-parent-kind-module"><a href="tags___a_collection_of_chainable_tags_for_template_string_literals.tags.html" class="tsd-kind-icon">Tags</a></li>
+						</ul>
+					</section>
+					<section class="tsd-index-section ">
+						<h3>Variables</h3>
+						<ul class="tsd-index-list">
+							<li class="tsd-kind-variable tsd-parent-kind-module"><a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#indent_text" class="tsd-kind-icon">indentｰtext</a></li>
+							<li class="tsd-kind-variable tsd-parent-kind-module"><a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#text" class="tsd-kind-icon">text</a></li>
+						</ul>
+					</section>
+					<section class="tsd-index-section ">
 						<h3>Functions</h3>
 						<ul class="tsd-index-list">
-							<li class="tsd-kind-function tsd-parent-kind-module"><a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#number_lines" class="tsd-kind-icon">numberｰlines</a></li>
+							<li class="tsd-kind-function tsd-parent-kind-module"><a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#log" class="tsd-kind-icon">log</a></li>
+							<li class="tsd-kind-function tsd-parent-kind-module"><a href="tags___a_collection_of_chainable_tags_for_template_string_literals.html#test" class="tsd-kind-icon">test</a></li>
 						</ul>
 					</section>
 				</div>
 			</section>
 		</section>
 		<section class="tsd-panel-group tsd-member-group ">
+			<h2>Variables</h2>
+			<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+				<a name="indent_text" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> indentｰtext</h3>
+				<div class="tsd-signature tsd-kind-icon">indentｰtext<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;\n        This line as minimally indented.\n        The next one is also minimal.\n                This is some fairly long text: Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n                This is the deepest.\n                This line has the same indentation as the previous one.\n                It is indented by 8 spaces compared to the minimum level.\n        We are back at minimal level.\n        And we stay there.\n            This line is deeper indented.\n            It has a depth of 4 spaces.\n            This one too.\n            And that one too.\n    \n    \n        This line has the initial indentation level.\n        And this is the last line before a newline.\n        &quot;</span><span class="tsd-signature-symbol"> = ...</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/2deb905/libs/tags.ts#L983">Factshaven/Google/clasp/properties/libs/tags.ts:983</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+				<a name="text" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> text</h3>
+				<div class="tsd-signature tsd-kind-icon">text<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;\n    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n          Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n\n          Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n          Second lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n    Unindented duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\n    Third lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n    \n    \n    \n    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\t\n\n    ≤There&#x27;s a tab-newline just before this,\n    then a real newline followed by a tab-newline-tab»\t\n\t\n    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n          Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n                More indented lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n                &quot;</span><span class="tsd-signature-symbol"> = ...</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/2deb905/libs/tags.ts#L937">Factshaven/Google/clasp/properties/libs/tags.ts:937</a></li>
+					</ul>
+				</aside>
+			</section>
+		</section>
+		<section class="tsd-panel-group tsd-member-group ">
 			<h2>Functions</h2>
 			<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-				<a name="number_lines" class="tsd-anchor"></a>
-				<h3><span class="tsd-flag ts-flagConst">Const</span> numberｰlines</h3>
+				<a name="log" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> log</h3>
 				<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-					<li class="tsd-signature tsd-kind-icon">numberｰlines<span class="tsd-signature-symbol">(</span>tag<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tagｰfunction</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">chainableｰtagｰfunction</span></li>
-					<li class="tsd-signature tsd-kind-icon">numberｰlines<span class="tsd-signature-symbol">(</span>stringｰliteral<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
-					<li class="tsd-signature tsd-kind-icon">numberｰlines<span class="tsd-signature-symbol">(</span>strings<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">templateｰstrings</span>, <span class="tsd-signature-symbol">...</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">printableｰvalue</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					<li class="tsd-signature tsd-kind-icon">log<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.printable_value.html" class="tsd-signature-type" data-tsd-kind="Interface">printableｰvalue</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/4635c83/libs/tags.ts#L654">Factshaven/Google/clasp/properties/libs/tags.ts:654</a></li>
+								<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/2deb905/libs/tags.ts#L923">Factshaven/Google/clasp/properties/libs/tags.ts:923</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
-								<h5>tag: <span class="tsd-signature-type">tagｰfunction</span></h5>
+								<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.printable_value.html" class="tsd-signature-type" data-tsd-kind="Interface">printableｰvalue</a><span class="tsd-signature-symbol">[]</span></h5>
 							</li>
 						</ul>
-						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">chainableｰtagｰfunction</span></h4>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+				<a name="test" class="tsd-anchor"></a>
+				<h3><span class="tsd-flag ts-flagConst">Const</span> test</h3>
+				<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+					<li class="tsd-signature tsd-kind-icon">test<span class="tsd-signature-symbol">(</span>tag<span class="tsd-signature-symbol">: </span><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.tag_function.html" class="tsd-signature-type" data-tsd-kind="Interface">tagｰfunction</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.chainable_tag_function.html" class="tsd-signature-type" data-tsd-kind="Interface">chainableｰtagｰfunction</a>, text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				</ul>
+				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/4635c83/libs/tags.ts#L654">Factshaven/Google/clasp/properties/libs/tags.ts:654</a></li>
+								<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/2deb905/libs/tags.ts#L931">Factshaven/Google/clasp/properties/libs/tags.ts:931</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
-								<h5>stringｰliteral: <span class="tsd-signature-type">string</span></h5>
-							</li>
-						</ul>
-						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
-					</li>
-					<li class="tsd-description">
-						<aside class="tsd-sources">
-							<ul>
-								<li>Defined in <a href="https://github.com/jr-grenoble/properties/blob/4635c83/libs/tags.ts#L654">Factshaven/Google/clasp/properties/libs/tags.ts:654</a></li>
-							</ul>
-						</aside>
-						<h4 class="tsd-parameters-title">Parameters</h4>
-						<ul class="tsd-parameters">
-							<li>
-								<h5>strings: <span class="tsd-signature-type">templateｰstrings</span></h5>
+								<h5>tag: <a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.tag_function.html" class="tsd-signature-type" data-tsd-kind="Interface">tagｰfunction</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/tags___a_collection_of_chainable_tags_for_template_string_literals.tags.chainable_tag_function.html" class="tsd-signature-type" data-tsd-kind="Interface">chainableｰtagｰfunction</a></h5>
 							</li>
 							<li>
-								<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>values: <span class="tsd-signature-type">printableｰvalue</span><span class="tsd-signature-symbol">[]</span></h5>
+								<h5>text: <span class="tsd-signature-type">string</span></h5>
 							</li>
 						</ul>
-						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 					</li>
 				</ul>
 			</section>

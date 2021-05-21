@@ -90,18 +90,23 @@ namespace Tags {
    * ```
    */
   export interface chainableｰtagｰfunction extends tagｰfunction {
-    (tag: tagｰfunction): chainableｰtagｰfunction;
-    (stringｰliteral: string): string;
+    (
+      tag: tagｰfunction
+    ): chainableｰtagｰfunction /** allow chainable tag functions to preprocess template literals with other tag functions */;
+    (
+      stringｰliteral: string
+    ): string /** allow chainable tag function to process regular strings */;
   }
 
   /**
-   *
+   * When creating a numberingｰcounter, we pass it severall options
    */
-
   export interface numberingｰoptions {
     numberｰfrom?: number;
     prefix?: string;
     suffix?: string;
+    prefixｰzero?: string;
+    suffixｰzero?: string;
     padｰwidth?: number;
     padｰwith?: string | number;
     padｰzeroｰwith?: string | number;
@@ -386,6 +391,7 @@ namespace Tags {
         `indent(${n})`
       )
     );
+
   /**
    * @todo THE MOST COMPLEX tag is to wrap lines to a max line length
    *
@@ -415,6 +421,7 @@ namespace Tags {
         }),
       ];
     };
+
   export const wrap = (n: number): chainableｰtagｰfunction =>
     makeｰchainable(
       rename(function (
@@ -465,6 +472,227 @@ namespace Tags {
       },
       `wrap(${n})`)
     );
+
+  interface characterｰset {
+    uppercase: string[];
+    lowercase: string[];
+    digits?: string[];
+    symbols?: { [k: string]: string };
+  }
+
+  const characterｰbounds = {
+    uppercase: {
+      min: "A".codePointAt(0) as number,
+      max: "Z".codePointAt(0) as number,
+    } as const,
+    lowercase: {
+      min: "a".codePointAt(0) as number,
+      max: "z".codePointAt(0) as number,
+    } as const,
+    digit: {
+      min: "0".codePointAt(0) as number,
+      max: "9".codePointAt(0) as number,
+    } as const,
+  } as const;
+
+  const characterｰsets: { readonly [name: string]: characterｰset } = {
+    // serif (the default) must be the first entry!!
+    serif: {
+      uppercase: [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"],
+      lowercase: [..."abcdefghijklmnopqrstuvwxyz"],
+      digits: [..."0123456789"],
+    },
+    circledｰenclosedｰsans: {
+      uppercase: [..."ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ"],
+      lowercase: [..."ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ"],
+      digits: [..."⓪①②③④⑤⑥⑦⑧⑨"],
+    },
+    fullｰwidthｰsans: {
+      uppercase: [..."ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ"],
+      lowercase: [..."ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ"],
+      digits: [..."０１２３４５６７８９"],
+      symbols: {
+        $: "＄",
+        _: "＿",
+        "!": "！",
+        "?": "？",
+        "#": "＃",
+        "¢": "￠",
+        "£": "￡",
+        "¥": "￥",
+        "₩": "￦",
+        "%": "％",
+        "&": "＆",
+        "@": "＠",
+        ".": "．",
+        ",": "，",
+        ":": "：",
+        ";": "；",
+        "(": "（",
+        ")": "）",
+        "[": "［",
+        "]": "］",
+        "{": "｛",
+        "}": "｝",
+        "⸨": "｟",
+        "⸩": "｠",
+        "⸢": "「",
+        "⸥": "」",
+        "/": "／",
+        "\\": "＼",
+        "¯": "￣",
+        "|": "｜",
+        "¦": "￤",
+        "^": "＾",
+        ˆ: "＾",
+        "`": "｀",
+        "˜": "～",
+        "~": "～",
+        "'": "＇",
+        '"': "＂",
+        "+": "＋",
+        "-": "－",
+        "<": "＜",
+        "=": "＝",
+        ">": "＞",
+        "¬": "￢",
+        "*": "＊",
+      },
+    },
+    boldｰserif: {
+      uppercase: [..."𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙"],
+      lowercase: [..."𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳"],
+      digits: [..."𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗"],
+    },
+    italicｰserif: {
+      uppercase: [..."𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍"],
+      lowercase: [..."𝑎𝑏𝑐𝑑𝑒𝑓𝑔ℎ𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧"],
+    },
+    boldｰitalicｰserif: {
+      uppercase: [..."𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁"],
+      lowercase: [..."𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛"],
+    },
+    italicｰscript: {
+      uppercase: [..."𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"],
+      lowercase: [..."𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏"],
+    },
+    boldｰitalicｰscript: {
+      uppercase: [..."𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩"],
+      lowercase: [..."𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃"],
+    },
+    frakturｰitalicｰscript: {
+      uppercase: [..."𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ"],
+      lowercase: [..."𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷"],
+    },
+    boldｰfrakturｰitalicｰscript: {
+      uppercase: [..."𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅"],
+      lowercase: [..."𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"],
+    },
+    doubleｰstruckｰboldｰsans: {
+      uppercase: [..."𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ"],
+      lowercase: [..."𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫"],
+      digits: [..."𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡"],
+    },
+    sans: {
+      uppercase: [..."𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹"],
+      lowercase: [..."𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓"],
+      digits: [..."𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫"],
+    },
+    boldｰsans: {
+      uppercase: [..."𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭"],
+      lowercase: [..."𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇"],
+      digits: [..."𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵"],
+    },
+    italicｰsans: {
+      uppercase: [..."𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"],
+      lowercase: [..."𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻"],
+    },
+    boldｰitalicｰsans: {
+      uppercase: [..."𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕"],
+      lowercase: [..."𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯"],
+    },
+    monospaceｰitalicｰboldｰserif: {
+      uppercase: [..."𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉"],
+      lowercase: [..."𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣"],
+      digits: [..."𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿"],
+    },
+  };
+
+  const formatter = (keywords: string[]): ((text: string) => string) => {
+    // prioritize sans-serif over serif
+    if (keywords.indexOf("sans") >= 0) {
+      const serif = keywords.indexOf("serif");
+      if (serif >= 0) keywords.splice(serif, 1);
+    }
+    const score = (font: string): number =>
+      keywords.reduce(
+        (score, keyword) => score + (font.indexOf(keyword) >= 0 ? 1 : 0),
+        0
+      );
+
+    const bestｰfont = Object.keys(characterｰsets)
+      .map((font) => [font, score(font)])
+      .sort(
+        ([, score1], [, score2]) => (score2 as number) - (score1 as number)
+      )[0]?.[0];
+
+    const characterｰset = characterｰsets[bestｰfont ?? "serif"] as characterｰset;
+
+    return (text: string) =>
+      [...text]
+        .map((char: string): string => {
+          const c: number = char.codePointAt(0) as number;
+          switch (true) {
+            case characterｰbounds.uppercase.min <= c &&
+              c <= characterｰbounds.uppercase.max:
+              return characterｰset.uppercase[
+                c - characterｰbounds.uppercase.min
+              ] as string;
+            case characterｰbounds.lowercase.min <= c &&
+              c <= characterｰbounds.lowercase.max:
+              return characterｰset.lowercase[
+                c - characterｰbounds.lowercase.min
+              ] as string;
+            case characterｰbounds.digit.min <= c &&
+              c <= characterｰbounds.digit.max:
+              return (
+                (characterｰset.digits?.[
+                  c - characterｰbounds.digit.min
+                ] as string) ?? char
+              );
+            case char in (characterｰset.symbols ?? {}):
+              return characterｰset.symbols?.[char] ?? char;
+            default:
+              return char;
+          }
+        })
+        .join("");
+  };
+
+  export const format = (format: string): chainableｰtagｰfunction => {
+    const keywords = format
+      .toLowerCase()
+      .replace(/\s*/, "")
+      .split(/ｰ|-|\s|,|;/);
+
+    return makeｰchainable(
+      rename(
+        function (
+          strings: templateｰstrings,
+          ...values: printableｰvalue[]
+        ): string {
+          const lines = textｰlines(identity(strings, ...values));
+          return lines.map(formatter(keywords)).join("\n");
+        },
+        // rename indent function to include its parameter
+        `format(${keywords})`
+      )
+    );
+  };
+  export const bold = format("bold");
+  export const italic = format("italic");
+  export const fraktur = format("fraktur");
+  export const boldｰsans = format("bold-sans");
 
   export const alphabetize = ({ uppercase = false } = {}): ((
     n: number,
@@ -523,14 +751,34 @@ namespace Tags {
     };
   };
 
-  export const arabize = (n: number): string => `${n}`;
+  export const arabize = ({ big = false } = {}): ((n: number) => string) => {
+    const smallｰdigits: { [k: string]: string } = {
+      "0": "₀",
+      "1": "₁",
+      "2": "₂",
+      "3": "₃",
+      "4": "₄",
+      "5": "₅",
+      "6": "₆",
+      "7": "₇",
+      "8": "₈",
+      "9": "₉",
+    };
+    const mapper: (c: string) => string = big
+      ? (c) => c
+      : (c) => smallｰdigits[c] ?? c;
+    return function digit(n: number): string {
+      return [...`${n}`].map(mapper).join("");
+    };
+  };
 
   export const numberingｰschemes = {
     alpha: alphabetize({ uppercase: false }),
     Alpha: alphabetize({ uppercase: true }),
     roman: romanize({ uppercase: false }),
     Roman: romanize({ uppercase: true }),
-    digit: arabize,
+    digit: arabize({ big: false }),
+    Digit: arabize({ big: true }),
   };
 
   export const maxｰpaddingｰwidth = (
@@ -550,17 +798,18 @@ namespace Tags {
     return sign + (base as number[]).findIndex((element) => element > max);
   };
 
-  export class counter {
+  export class numberingｰcounter {
     public value: number;
     private readonly stringｰpadding: boolean;
     private readonly stringize: (n: number) => string;
-    private padder: (n: number) => string = arabize;
+    private padder: (n: number) => string = arabize();
     constructor(
       private readonly options: numberingｰoptions = {} // padｰwith: string | number = " ",
     ) {
       this.value = options.numberｰfrom ?? 0;
       this.options.prefix ??= "";
       this.options.suffix ??= "";
+      this.options.suffixｰzero ??= this.options.suffix;
       this.options.padｰwidth ??= 0;
       this.options.padｰwith = `${options.padｰwith ?? " "}`;
       this.options.padｰzeroｰwith = `${
@@ -576,21 +825,36 @@ namespace Tags {
           : n < 0
           ? "-"
           : "";
+        const { prefix, suffix } = n
+          ? this.options
+          : {
+              prefix: this.options.prefixｰzero,
+              suffix: this.options.suffixｰzero,
+            };
         const nｰasｰstring = this.stringize(Math.abs(n));
         const padding = (
           n ? this.options.padｰwith : this.options.padｰzeroｰwith
         ) as string;
 
         if (this.stringｰpadding) {
-          return (sign + nｰasｰstring).padStart(
-            this.options.padｰwidth as number,
-            padding
+          return (
+            prefix +
+            (sign + nｰasｰstring).padStart(
+              this.options.padｰwidth as number,
+              padding
+            ) +
+            suffix
           );
         }
         const width =
           (this.options.padｰwidth as number) -
           (n < 0 && !this.options.signｰall ? 1 : 0);
-        return sign + nｰasｰstring.padStart(width, padding);
+        return (
+          (prefix as string) +
+          sign +
+          nｰasｰstring.padStart(width, padding) +
+          suffix
+        );
       };
     }
     get reset(): this {
@@ -605,9 +869,7 @@ namespace Tags {
       return this.stringize(this.value);
     }
     get pad(): string {
-      return `${this.options.prefix}${this.padder(this.value)}${
-        this.options.suffix
-      }`;
+      return this.padder(this.value);
     }
   }
 
@@ -631,8 +893,12 @@ namespace Tags {
         ): string {
           const lines = textｰlines(identity(strings, ...values));
           options.numberｰfrom ??= 0;
-          options.suffix ??= ". ";
+          options.prefix ??= "│";
+          options.suffix ??= "│";
+          options.prefixｰzero ??= "┼";
+          options.suffixｰzero ??= "┼";
           options.padｰwith ??= " ";
+          options.padｰzeroｰwith ??= "─";
 
           options.padｰwidth = maxｰpaddingｰwidth(
             options.numberｰfrom,
@@ -641,17 +907,18 @@ namespace Tags {
             options.signｰall
           );
 
-          const index = new counter(options);
+          const index = new numberingｰcounter(options);
 
           return lines.map((line) => `${index.next.pad}${line}`).join("\n");
         },
         // rename indent function to include its parameters
-        `number(${JSON.stringify(options)})`
+        Object.keys(options).length === 0
+          ? `numberｰlines`
+          : `number(${JSON.stringify(options)})`
       )
     );
+  export const numberｰlines = Tags.numbering();
 }
-
-export const numberｰlines = Tags.numbering();
 
 const log = (...args: Tags.printableｰvalue[]) =>
   console.log(
@@ -734,10 +1001,17 @@ const indentｰtext = `
 test(
   Tags.numbering({
     padｰwith: " ",
-    numberｰfrom: -29,
-    prefix: "«",
-    suffix: "» ",
+    numberｰfrom: -25,
+    // prefix: "«",
+    // suffix: "» ",
     numberingｰscheme: "roman",
   })(Tags.wrap(40)(Tags.outdent)),
   indentｰtext
+);
+
+test(Tags.numberｰlines(Tags.wrap(40)(Tags.outdent)), indentｰtext);
+
+test(
+  Tags.italic,
+  `Some text with ${Tags.boldｰsans`embedded bold`} and ${Tags.fraktur`fraktur text`}`
 );
